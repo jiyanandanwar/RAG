@@ -1,0 +1,51 @@
+const express = require("express");
+const cors = require("cors");
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Example RAG API
+app.post("/api/chat", async (req, res) => {
+  try {
+    const { query } = req.body;
+
+    // Step 1: Retrieve relevant documents
+    const retrievedDocs = await retrieveDocuments(query);
+
+    // Step 2: Generate answer using LLM
+    const answer = await generateAnswer(query, retrievedDocs);
+
+    // Step 3: Return response
+    res.json({
+      success: true,
+      query,
+      context: retrievedDocs,
+      answer
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Dummy retrieval function
+async function retrieveDocuments(query) {
+  return [
+    "Document 1 related to the query",
+    "Document 2 related to the query"
+  ];
+}
+
+// Dummy LLM function
+async function generateAnswer(query, docs) {
+  return `Generated answer for "${query}" using retrieved context.`;
+}
+
+const PORT = 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
