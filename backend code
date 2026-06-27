@@ -1,51 +1,33 @@
-const express = require("express");
-const cors = require("cors");
+from flask import Flask, request, jsonify
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+app = Flask(__name__)
 
-// Example RAG API
-app.post("/api/chat", async (req, res) => {
-  try {
-    const { query } = req.body;
+@app.route("/api/chat", methods=["POST"])
+def chat():
+    data = request.json
+    query = data["query"]
 
-    // Step 1: Retrieve relevant documents
-    const retrievedDocs = await retrieveDocuments(query);
+    # Retrieve relevant documents
+    retrieved_docs = retrieve_documents(query)
 
-    // Step 2: Generate answer using LLM
-    const answer = await generateAnswer(query, retrievedDocs);
+    # Generate answer
+    answer = generate_answer(query, retrieved_docs)
 
-    // Step 3: Return response
-    res.json({
-      success: true,
-      query,
-      context: retrievedDocs,
-      answer
-    });
+    return jsonify({
+        "success": True,
+        "query": query,
+        "context": retrieved_docs,
+        "answer": answer
+    })
 
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-});
+def retrieve_documents(query):
+    return [
+        "Relevant document 1",
+        "Relevant document 2"
+    ]
 
-// Dummy retrieval function
-async function retrieveDocuments(query) {
-  return [
-    "Document 1 related to the query",
-    "Document 2 related to the query"
-  ];
-}
+def generate_answer(query, docs):
+    return f"Answer generated using retrieved documents for '{query}'."
 
-// Dummy LLM function
-async function generateAnswer(query, docs) {
-  return `Generated answer for "${query}" using retrieved context.`;
-}
-
-const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+if __name__ == "__main__":
+    app.run(debug=True)
